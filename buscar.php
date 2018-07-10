@@ -4,13 +4,22 @@
   session_start();
 
   if ( isset($_POST["idOAComment"]) && isset($_POST["comment"]) ) {
-    $sql = "INSERT INTO comentario (detalleComent, idOA, idProfesor)
-            VALUES (:detalleComent, :idOA, :idProfesor)";
+      $nombre = $_FILES['imagen']['name'];
+      $nombrer = strtolower($nombre);
+      //$cd=$_FILES['imagen']['tmp_name'];
+      $ruta = "img/" . $_FILES['imagen']['name'];
+      $destino = "img/".$nombrer;
+      $resultado = @move_uploaded_file($_FILES["imagen"]["tmp_name"], $ruta);
+    $sql = "INSERT INTO comentario (detalleComent, idOA, idProfesor, pathImagen, fechaComentario)
+            VALUES (:detalleComent, :idOA, :idProfesor, :rutaArchivo, :fechaComentario)";
     $stmt = $pdo->prepare($sql);
+      $fecha=date("d") . "/" . date("m") . "/" . date("Y");
     $stmt->execute(array(
       ':detalleComent' => $_POST["comment"],
       ':idOA' => $_POST["idOAComment"],
-      ':idProfesor' => $_SESSION["userID"]));
+      ':idProfesor' => $_SESSION["userID"],
+        ':rutaArchivo' => $destino,
+        ':fechaComentario' => $fecha));
     $_SESSION["oa"] = "Comentario agregado correctamente.";
     unset($_POST["idOAComment"]);
     unset($_POST["comment"]);
@@ -32,6 +41,7 @@
 <html lang="en">
 
 <head>
+
   <?php
   require "head.php";
   ?>
@@ -150,6 +160,8 @@
       padding-left: 0px;
     }
   </style>
+
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -187,7 +199,7 @@
             }
 
             echo '<tr>';
-            $sql = "SELECT * FROM rutaoa WHERE idOA = :idOA AND idUser = :idUser AND username = :userName";
+          /*  $sql = "SELECT * FROM rutaoa WHERE idOA = :idOA AND idUser = :idUser AND username = :userName";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(':idOA' => $id, 'idUser' => $_SESSION["userID"], 'userName' => $_SESSION["userName"]));
             $ruta = '';
@@ -202,7 +214,7 @@
             else
             {
               echo '<td>' . $row['nombre'] . '</td>';
-            }
+            }*/
             echo '<td>' . $row['autor'] . '</td>';
             echo '<td>' . date("d-m-Y",strtotime($row['fecha'])) . '</td>';
             echo '<td>' . $row['p_clave'] . '</td>';
@@ -298,6 +310,24 @@
             echo $row['nombresProf'] . ' ' . $row['apellidosProf'];
             echo '</div>';
             echo '</div>';
+              echo '<div class="row top5 bottom5">';
+              echo '<div class="col-3 text-right padding5">';
+              echo '<b>Visualización:</b>';
+              echo '</div>';
+              echo '<div class="col text-justify padding15">';
+              $ruta=$row['ruta_zip'];
+              //echo '<div>'.$ruta.'</div>';
+              $zip = new ZipArchive;
+              //en la función open se le pasa la ruta de nuestro archivo (alojada en carpeta temporal)
+              if ($zip->open($ruta) === TRUE)
+              {
+                  //función para extraer el ZIP, le pasamos la ruta donde queremos que nos descomprima
+                  $zip->extractTo('almacen/');
+                  $zip->close();
+              }
+              echo '<a href="almacen/index.html" target="_blank">Visualización</a>';
+              echo '</div>';
+              echo '</div>';
             echo '</div>';
 
             echo '<hr><div class="row bottom10">';
@@ -307,26 +337,31 @@
             echo '</div>';
             echo '<div class="comments">';
             echo '<ul class="list-group">';
-            $sql = "SELECT detalleComent, nombresProf, apellidosProf
+            $sql = 'CALL cargarComentarios(:idOA)';
+                /*"SELECT detalleComent, nombresProf, apellidosProf
                     FROM comentario c
                     JOIN profesor p
                     ON p.idProfesor = c.idProfesor
-                    WHERE idOA = :idOA";
+                    WHERE idOA = :idOA";*/
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(':idOA' => $id));
             foreach ($stmt as $comment) {
               echo '<li class="list-group-item">';
-              echo '<strong>' . $comment['nombresProf'] . ' ' . $comment['apellidosProf'] . '</strong>&emsp;&emsp;&emsp;&emsp;';
+              echo '<strong>' . $comment['nombresProf'] . ' ' . $comment['apellidosProf'].'  '.$comment['fechaComentario'].'</strong>&emsp;&emsp;&emsp;&emsp;';
               echo $comment['detalleComent'];
+              echo '<div><img src="'.$comment['pathImagen'].'" style="width: 50%; height: 80%">';
               echo '</li>';
             }
             echo '</ul>';
             echo '</div>';
 
-            if ($_SESSION["userType"] == "prof") {
-              echo '<form method="post" class="top5">';
+            if ($_SESSION["userType"] == "prof" || $_SESSION["userType"] == "est") {
+              echo '<form method="post" class="top5" enctype="multipart/form-data">';
               echo '<div class="form-group">';
               echo '<textarea name="comment" placeholder="Ingrese un comentario." class="form-control"></textarea>';
+              echo '<input id="imagen" name="imagen" type="file" maxlength="150">';
+              echo '<br />';
+              echo '<div id="preview"></div>';
               echo '</div>';
               echo '<div class="form-group">';
               echo '<div class="form-row">';
@@ -444,8 +479,19 @@
         alert("Objeto de Aprendizaje descomprimido con exito!");
         javascript:location.href='buscar.php';
       }
+
+
     </script>
   </div>
 </body>
 
 </html>
+
+<script type="text/javascript" src="/vendor/jquery/jquery.js"></script>
+<script>
+
+    $("#btn").click(function(){
+        var archivos = document.getElementById("file").files;
+        alert(archivos.name);
+    });
+</script>

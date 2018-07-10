@@ -1,28 +1,29 @@
 <?php
   require_once "pdo.php";
-  require_once "mail.php";
-  require_once "cedula.php";
-  session_start();
+require_once "enviar_correo.php";
+
+require_once "cedula.php";
+  //session_start();
   if ( isset($_POST["cedula"]) && isset($_POST["nombre"]) && isset($_POST["apellido"])
-    && isset($_POST["correo"]) && isset($_POST["departamento"]) && isset($_POST["user"]) && isset($_POST["pw"]) ) {
+    && isset($_POST["correo"]) && isset($_POST["departamento"]) ) {
     if (validarCedula($_POST["cedula"])) 
     {
-	$pwd_hash = password_hash($_POST["pw"], PASSWORD_DEFAULT);
-      $sql = "INSERT INTO profesor (cedulaProf, nombresProf, apellidosProf, correoProf, idDepartamento, usuarioProf, pwProf)
-      VALUES (:cedulaProf, :nombresProf, :apellidosProf, :correoProf, :idDepartamento, :usuarioProf, :pwProf)";
-      $stmt = $pdo->prepare($sql);
+        $sql =' CALL registrarProfesor(:cedulaProf, :nombresProf, :apellidosProf, :correoProf, :idDepartamento, :usuarioProf, :pwProf)';
+        $pwd_hash = password_hash($_POST["nombre"], PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare($sql);
       $stmt->execute(array(
       ':cedulaProf' => $_POST["cedula"],
       ':nombresProf' => $_POST["nombre"],
       ':apellidosProf' => $_POST["apellido"],
       ':correoProf' => $_POST["correo"],
       ':idDepartamento' => $_POST["departamento"],
-	  ':usuarioProf' => $_POST["user"],
-	  ':pwProf' => $pwd_hash));
+      ':usuarioProf' => $_POST["nombre"],
+      ':pwProf' => $pwd_hash));
       $_SESSION["reg"] = "Formulario enviado correctamente! El administrador le enviara su usuario y contraseña a su correo.";
       $nameto = $_POST["nombre"] . ' ' . $_POST["apellido"];
-      sendMailA($_POST["correo"], $nameto);
+      //sendMailA($_POST["correo"], $nameto);
       header( 'Location: index.php' ) ;
+      enviarcorreo($_POST["nombre"],$_POST["apellido"],$_POST["correo"]);
       return;
     }
   }
@@ -93,28 +94,12 @@
               echo('</optgroup>');
             ?>
             </select>
-			
-			</div>
-          <div class="form-group">
-            <label for="cedula">Usuario</label>
-            <input class="form-control" id="user" name="user" type="text" maxlength="15" placeholder="Ingrese su usuario" required>
           </div>
-          <div class="form-group">
-            <div class="form-row"> 
-              <div class="col-md-6"> 
-                <label for="pw">Contraseña</label> 
-                <input class="form-control" id="pw" name="pw" type="password" placeholder="Contraseña" required> 
-              </div> 
-              <div class="col-md-6"> 
-                <label for="pwconfirm">Confirmar contraseña</label> 
-                <input class="form-control" id="pwConf" name="pwConf" type="password" placeholder="Confirmar contraseña" required> 
-              </div> 
-            </div>
-          </div>
-			
-   
           <input class="btn btn-primary btn-block" type="submit" value="Enviar Formulario">
         </form>
+          <div class="text-center">
+              <a class="d-block small mt-3" href="AyudaProf.php">Ayuda</a>
+          </div>
         <div class="text-center">
           <a class="d-block small mt-3" href="login.php">Regresar a Login</a>
         </div>

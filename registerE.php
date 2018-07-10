@@ -1,16 +1,15 @@
 <?php
   require_once "pdo.php";
-  require_once "mail.php";
+require_once "enviar_correo.php";
   require_once "cedula.php";
-  session_start();
+  //session_start();
   if ( isset($_POST["cedula"]) && isset($_POST["nombre"]) && isset($_POST["apellido"]) && isset($_POST["usuario"])
     && isset($_POST["correo"]) && isset($_POST["carrera"]) && isset($_POST["pw"]) && isset($_POST["pwConf"]) ) {
     if ($_POST["pw"] == $_POST["pwConf"]) {
       if (validarCedula($_POST["cedula"])) 
       {
         $pwd_hash = password_hash($_POST["pw"], PASSWORD_DEFAULT);
-        $sql = "INSERT INTO estudiante (cedulaEst, nombresEst, apellidosEst, correoEst, idCarrera, usuarioEst, pwEst)
-              VALUES (:cedulaEst, :nombresEst, :apellidosEst, :correoEst, :idCarrera, :usuarioEst, :pwEst)";
+        $sql =' CALL registrarEstudiante(:cedulaEst, :nombresEst, :apellidosEst, :correoEst, :idCarrera, :usuarioEst, :pwEst)';
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array(
           ':cedulaEst' => $_POST["cedula"],
@@ -22,6 +21,7 @@
           ':pwEst' => $pwd_hash));
         $_SESSION["reg"] = "Usuario estudiante creado correctamente.";
         header( 'Location: index.php' ) ;
+        enviarcorreo($_POST["nombre"],$_POST["apellido"],$_POST["correo"]);
         return;
       }
     } else {
@@ -120,6 +120,10 @@
           </div>
           <input class="btn btn-primary btn-block" type="submit" value="Registrarse">
         </form>
+
+          <div class="text-center">
+              <a class="d-block small mt-3" href="AyudaEst.php">Ayuda</a>
+          </div>
         <div class="text-center">
           <a class="d-block small mt-3" href="login.php">Regresar a Login</a>
         </div>
