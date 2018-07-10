@@ -8,6 +8,7 @@
   <?php
     require "head.php"; //la funcion requiere en cada script toma la funcionalidad de dicho script y lo replica en este documento. Sirve para codigo limpio
   ?>
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -33,18 +34,15 @@
         unset($_SESSION["reg"]);
       }
     ?>
-    <div class="jumbotron">
-      <img src="images/logoEPN.png" style="float:right; width:300px;height:300px; margin:1em">
-      <h1 class="display-2">SISTEMA DE GESTIÓN DE OBJETOS DE APRENDIZAJE</h1>
-      <p class="lead">Herramienta diseñada para crear y gestionar objetos de aprendizaje de manera interactiva.</p>
-      <hr class="my-3">
-      <p class="display-5">Elaborado por:</p>
-      <ul type = disk >
-      <li>Francisco Izurieta
-      <li>Dario Herrera
-      <li>Alexis Guerrero
-      </ul>
-    </div>
+      <div class="jumbotron">
+          <img src="images/logoEPN.png" style="float:right; width:300px;height:300px; margin:1em">
+          <h1 class="display-2">SISTEMA DE GESTIÓN DE OBJETOS DE APRENDIZAJE</h1>
+          <p class="lead">Esta herramienta es desarrollada por estudiantes de la Escuela Politécnica Nacional para la creación y gestión de objetos de aprendizaje. Es una herramienta gratuita la cual permite expandir y compartir conocimiento en diversas áreas  mediante la utilización  de herramientas de aprendizaje.</p>
+          <p class="lead">Un Objeto de Aprendizaje es un conjunto de recursos digitales, autocontenible y reutilizable, con un propósito educativo y constituido por al menos tres componentes internos: contenidos, actividades de aprendizaje y elementos de contextualización.</p>
+          <hr class="my-3">
+
+          <a href="#" onclick="window.open('Manual-Usuario.pdf')">Conocer Más</a>
+      </div>
 
     <?php
       require "footer.php";

@@ -15,12 +15,13 @@
     }
 
     if(move_uploaded_file($fileTmpLoc, "zip/$fileName")){
-        echo "$fileName upload is complete";
-        $sql = "INSERT INTO objetoaprendizaje (nombre, autor, descripcion, fecha, p_clave, institucion, tamano, tipo, ruta_zip, idProfesor)
-                VALUES (:nombre, :autor, :descripcion, :fecha, :p_clave, :institucion, :fileSize, :tipo, :ruta_zip, :idProfesor)";
-        $stmt = $pdo->prepare($sql);
+        //echo "$fileName upload is complete";
+        $sql = "INSERT INTO objetoaprendizaje (nombre, autor, descripcion, fecha, p_clave, institucion, tamano, tipo, fecha_ing, ruta_zip, idProfesor)
+                VALUES (:nombre, :autor, :descripcion, :fecha, :p_clave, :institucion, :fileSize, :tipo, :fecha_ing, :ruta_zip, :idProfesor)";
         $size = $fileSize . ' bytes';
+        $ruta = "zip/$fileName";
         $tipo = 'WinRAR ZIP';
+        $stmt = $pdo->prepare($sql);
         $stmt->execute(array(
             ':nombre' => $_POST["nombreOA"],
             ':autor' => $_POST["autorOA"],
@@ -30,8 +31,10 @@
             ':institucion' => $_POST["institucionOA"],
             ':fileSize' => $size,
             ':tipo' => $tipo,
-            ':ruta_zip' => $fileName,
-            ':idProfesor' => $_SESSION['userID']));
+            ':fecha_ing' => $_POST["fechaCreacionOA"],
+            ':ruta_zip' => $ruta,
+            ':idProfesor' => $_SESSION['userID']
+            ));
     } else {
         echo "move_uploaded_file function failed";
     }
