@@ -1,11 +1,13 @@
 <?php
   require_once "pdo.php";
   require_once "delete.php";
+  require_once "deleteComentario.php";
   session_start();
 
   if ( isset($_POST["idOAComment"]) && isset($_POST["comment"]) ) {
       $nombre = $_FILES['imagen']['name'];
       $nombrer = strtolower($nombre);
+	  $idComentarios = 'idComentario';
       //$cd=$_FILES['imagen']['tmp_name'];
       $ruta = "img/" . $_FILES['imagen']['name'];
       $destino = "img/".$nombrer;
@@ -35,6 +37,11 @@
     header( 'Location: buscar.php' );
     return;
   }
+  if ( isset($_POST["idEliminarComent"]) ) {
+		deleteComent($idComent);
+		$_SESSION["oa"] = "Objeto de Aprendizaje eliminado del sistema correctamente.";
+	}
+  
 ?>
 
 <!DOCTYPE html>
@@ -349,8 +356,19 @@
               echo '<li class="list-group-item">';
               echo '<strong>' . $comment['nombresProf'] . ' ' . $comment['apellidosProf'].'  '.$comment['fechaComentario'].'</strong>&emsp;&emsp;&emsp;&emsp;';
               echo $comment['detalleComent'];
+			  $idComent=$comment['idComentario'];
               echo '<div><img src="'.$comment['pathImagen'].'" style="width: 50%; height: 80%">';
               echo '</li>';
+			  echo '<form method="post">';
+              echo '<div class="form-group top5">';
+		      echo '<div class="form-row">';
+              echo '<div class="col-4 offset-8">';
+              echo '<input type="hidden" name="idEliminarComent" value="' . $id . '">';
+			  echo '<input class="btn btn-danger btn-block"  type="submit" value="Eliminar Comentario">';
+              echo '</div>';
+              echo '</div>';
+              echo '</div>';
+              echo '</form>';		
             }
             echo '</ul>';
             echo '</div>';
