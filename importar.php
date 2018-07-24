@@ -54,6 +54,28 @@
                                     <label for="institucionOA">Institución</label>
                                     <input type="text" class="form-control" id="institucionOA" placeholder="Institución" required>
                                 </div>
+                            <div class="form-group">
+                                <label for="carrera">Carrera</label>
+                                <?php
+                                require_once "pdo.php";
+                                $sql="CALL consultarCarrera";
+                                $stmt = $pdo->prepare($sql);
+                                $stmt->execute();
+                                echo '<select id="cbxCarrera" class="form-control form-group">';
+                                foreach ($stmt as $carrera) {
+                                    echo '<option value="'.$carrera['nombreCarrera'].'">'.$carrera['nombreCarrera'].'</option>';
+                                }
+                                echo '</select>';
+                                ?>
+                            </div>
+                            <div class="form-group">
+                                <label for="materias">Materias</label>
+                                <select id="cbxMaterias" class="form-control form-group">
+                                </select>
+                            </div>
+                            <div class="form-group" style="display: none">
+                                <input type="text" class="form-control" id="idMateria">
+                            </div>
                                 <div class="form-group">
                                     <label for="fechaCreacionOA">Fecha de creacion</label>
                                     <input type="date" class="form-control" id="fechaCreacionOA" placeholder="Fecha de creacion OA" required>
@@ -115,6 +137,7 @@
                     formdata.append("institucionOA", _("institucionOA").value);
                     formdata.append("palabraClaveOA", _("palabraClaveOA").value);
                     formdata.append("fechaCreacionOA", _("fechaCreacionOA").value);
+                    formdata.append("idMateria", _("idMateria").value);
                     var ajax = new XMLHttpRequest();
                     ajax.upload.addEventListener("progress", progressHandler, false);
                     ajax.open("POST", "upload.php");
@@ -180,6 +203,38 @@
                     });
             }
         </script>
+        <script src="vendor/jquery/jquery.js"></script>
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script>
+            $("#cbxCarrera").change(function(){
+
+                $.ajax({
+                    method: "POST",
+                    url: "materias.php",
+                    data: {"nombreCarrera": $("#cbxCarrera").val()},
+                }).done(function( data ) {
+                        var result = $.parseJSON(data);
+                        $.each( result, function( key, value ) {
+                            $("#cbxMaterias").append("<option>"+value['nombreMateria']+"</option>");
+                        });
+                });
+            });
+
+            $("#cbxMaterias").change(function(){
+
+                $.ajax({
+                    method: "POST",
+                    url: "buscarMaterias.php",
+                    data: {"nombreMateria": $("#cbxMaterias").val()},
+                }).done(function( data ) {
+                    var result = $.parseJSON(data);
+                    $.each( result, function( key, value ) {
+                        $("#idMateria").val(value['idMateria']);
+                    });
+                });
+            });
+        </script>
+
     </div>
 </body>
 

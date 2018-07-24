@@ -16,8 +16,8 @@
 
     if(move_uploaded_file($fileTmpLoc, "zip/$fileName")){
         //echo "$fileName upload is complete";
-        $sql = "INSERT INTO objetoaprendizaje (nombre, autor, descripcion, fecha, p_clave, institucion, tamano, tipo, fecha_ing, ruta_zip, idProfesor)
-                VALUES (:nombre, :autor, :descripcion, :fecha, :p_clave, :institucion, :fileSize, :tipo, :fecha_ing, :ruta_zip, :idProfesor)";
+        $sql = "INSERT INTO objetoaprendizaje (nombre, autor, descripcion, fecha, p_clave, institucion, tamano, tipo, fecha_ing, ruta_zip, idProfesor, idMateria)
+                VALUES (:nombre, :autor, :descripcion, :fecha, :p_clave, :institucion, :fileSize, :tipo, :fecha_ing, :ruta_zip, :idProfesor, :idMateria)";
         $size = $fileSize . ' bytes';
         $ruta = "zip/$fileName";
         $tipo = 'WinRAR ZIP';
@@ -33,7 +33,8 @@
             ':tipo' => $tipo,
             ':fecha_ing' => $_POST["fechaCreacionOA"],
             ':ruta_zip' => $ruta,
-            ':idProfesor' => $_SESSION['userID']
+            ':idProfesor' => $_SESSION['userID'],
+            ':idMateria' => $_POST['idMateria']
             ));
     } else {
         echo "move_uploaded_file function failed";

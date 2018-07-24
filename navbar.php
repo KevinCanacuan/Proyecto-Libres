@@ -38,6 +38,9 @@
                         <li>
                             <a href="buscar.php">Buscar Objetos de Aprendizaje</a>
                         </li>
+                        <li>
+                            <a href="valoracionObjetoA.php">Puntuación Objetos de Aprendizaje</a>
+                        </li>
                     </ul>
                 </li>
                 <?php
