@@ -65,7 +65,7 @@
                     var fila='';
                     $.each( result, function( key, value ) {
                         fila += '<tr>';
-                        fila += '<td>' + value['descripcion'] + '</td>';
+                        fila += '<td>' + value['nombre'] + '</td>';
                         fila += '<td>' + value['calificacionObjeto'] + '</td>';
                         fila += '</tr>';
                     });

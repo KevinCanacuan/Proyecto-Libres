@@ -1,5 +1,6 @@
 <?php
   require_once "pdo.php";
+  require_once "enviar_correobloq.php";
   session_start();
 
   if ( isset($_POST["inputUser"]) && isset($_POST["inputPW"]) && isset($_POST["userType"]) ) {
@@ -8,29 +9,42 @@
     $idType = ' ';
     $nameType = ' ';
     $apellidoType = ' ';
+	$bloqueoEst = ' ';
+	$correo = ' ';
     if ($_POST["userType"] == 'admin') {
       $sql = 'SELECT * FROM administrador WHERE usuarioAdmin = :usuario';
       $pwType = 'pwAdmin';
       $idType = 'idAdministrador';
+	  $bloqueoEst = 'bloqueo';
+	  
     } elseif ($_POST["userType"] == 'prof') {
       $sql = 'SELECT * FROM profesor WHERE usuarioProf = :usuario';
       $pwType = 'pwProf';
       $idType = 'idProfesor';
       $nameType = 'nombresProf';
       $apellidoType = 'apellidosProf';
+	  $bloqueoEst = 'bloqueo';
+	  $correo = 'correoProf';
     } else {
       $sql = 'SELECT * FROM estudiante WHERE usuarioEst = :usuario';
       $pwType = 'pwEst';
       $idType = 'idEstudiante';
       $nameType = 'nombresEst';
       $apellidoType = 'apellidosEst';
+	  $bloqueoEst = 'bloqueo';
+	  $correo = 'correoEst';
     }
     $stmt = $pdo->prepare($sql);
     $stmt->execute(array(':usuario' => $_POST["inputUser"]));
     if ($stmt->rowCount() > 0) {
       $result = $stmt->fetch(PDO::FETCH_ASSOC);
       $passwd = $result[$pwType];
-      if (password_verify($_POST["inputPW"], $passwd)) {
+	  $blo = $result[$bloqueoEst];
+	  $correo1 = $result[$correo];
+	  
+	  if ($blo == 1){
+      if (password_verify($_POST["inputPW"], $passwd )) {
+		  
         $_SESSION["user"] = $_POST["inputUser"];
         $_SESSION["userType"] = $_POST["userType"];
         $_SESSION["userID"] = $result[$idType];
@@ -43,6 +57,11 @@
       } else {
         $_SESSION['error'] = 'Contraseña no coincide con el usuario ingresado.';
       }
+	  }else{
+		  
+		  enviarcorreobloc($correo1);
+		  $_SESSION['error'] = 'El usuario se encuentra bloqueado.';
+	  }
     } else {
       $_SESSION['error'] = 'Usuario no registrado.';
     }

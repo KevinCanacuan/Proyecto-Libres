@@ -41,6 +41,12 @@
                         <li>
                             <a href="valoracionObjetoA.php">Puntuación Objetos de Aprendizaje</a>
                         </li>
+						<li>
+                            <a href="descargas.php">Descargas de Objetos de Aprendizajes</a>
+                        </li>
+						<li>
+                            <a href="grafica.php">Graficar Estadisticas</a>
+                        </li>
                     </ul>
                 </li>
                 <?php
