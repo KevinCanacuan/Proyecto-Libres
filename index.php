@@ -26,6 +26,7 @@
       }
 
       //esta parte del codigo es el anuncia cuando un usuario se registro correctamente
+      //<button>Probando <i class="fas fa-play"></i></button>
       if ( isset($_SESSION["reg"]) ) {
         echo('<div class="alert alert-success alert-dismissable">');
         echo('<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>');
@@ -39,6 +40,7 @@
           <h1 class="display-2">SISTEMA DE GESTIÓN DE OBJETOS DE APRENDIZAJE</h1>
           <p class="lead">Esta herramienta es desarrollada por estudiantes de la Escuela Politécnica Nacional para la creación y gestión de objetos de aprendizaje. Es una herramienta gratuita la cual permite expandir y compartir conocimiento en diversas áreas  mediante la utilización  de herramientas de aprendizaje.</p>
           <p class="lead">Un Objeto de Aprendizaje es un conjunto de recursos digitales, autocontenible y reutilizable, con un propósito educativo y constituido por al menos tres componentes internos: contenidos, actividades de aprendizaje y elementos de contextualización.</p>
+
           <hr class="my-3">
 
           <a href="#" onclick="window.open('Manual-Usuario.pdf')">Conocer Más</a>

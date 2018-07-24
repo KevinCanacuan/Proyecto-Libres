@@ -1,19 +1,17 @@
 <?php
   require_once "pdo.php";
   require_once "delete.php";
-  require_once "deleteComentario.php";
   session_start();
 
   if ( isset($_POST["idOAComment"]) && isset($_POST["comment"]) ) {
       $nombre = $_FILES['imagen']['name'];
       $nombrer = strtolower($nombre);
-	  $idComentarios = 'idComentario';
       //$cd=$_FILES['imagen']['tmp_name'];
       $ruta = "img/" . $_FILES['imagen']['name'];
       $destino = "img/".$nombrer;
       $resultado = @move_uploaded_file($_FILES["imagen"]["tmp_name"], $ruta);
-    $sql = "INSERT INTO comentario (detalleComent, idOA, idProfesor, pathImagen, fechaComentario)
-            VALUES (:detalleComent, :idOA, :idProfesor, :rutaArchivo, :fechaComentario)";
+    $sql = "INSERT INTO comentario (detalleComent, idOA, idProfesor, pathImagen, fechaComentario, pathVideo)
+            VALUES (:detalleComent, :idOA, :idProfesor, :rutaArchivo, :fechaComentario, :rutaVideo)";
     $stmt = $pdo->prepare($sql);
       $fecha=date("d") . "/" . date("m") . "/" . date("Y");
     $stmt->execute(array(
@@ -21,7 +19,8 @@
       ':idOA' => $_POST["idOAComment"],
       ':idProfesor' => $_SESSION["userID"],
         ':rutaArchivo' => $destino,
-        ':fechaComentario' => $fecha));
+        ':fechaComentario' => $fecha,
+        ':rutaVideo'=> $_POST["videoYoutube"]));
     $_SESSION["oa"] = "Comentario agregado correctamente.";
     unset($_POST["idOAComment"]);
     unset($_POST["comment"]);
@@ -37,11 +36,6 @@
     header( 'Location: buscar.php' );
     return;
   }
-  if ( isset($_POST["idEliminarComent"]) ) {
-		deleteComent($idComent);
-		$_SESSION["oa"] = "Objeto de Aprendizaje eliminado del sistema correctamente.";
-	}
-  
 ?>
 
 <!DOCTYPE html>
@@ -166,12 +160,14 @@
     .padding15 {
       padding-left: 0px;
     }
+
   </style>
 
 
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
+
   <?php
     require "navbar.php";
   ?>
@@ -187,16 +183,21 @@
       }
     ?>
     <div class="container">
+        <?php
+        echo '<input type="text" style="display:none" id="idUsuario" value="'.$_SESSION['userID'].'">';
+        ?>
       <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Buscar OA..." title="Ingrese un OA">
       <table id="myTable">
         <tr class="header">
-          <th style="width:30%;">Nombre</th>
-          <th style="width:25%;">Autor</th>
-          <th style="width:15%;">Año</th>
-          <th style="width:25%;">Palabras Clave</th>
-          <th style="width:5%;"></th>
+          <th style="width:20%;">Nombre</th>
+          <th style="width:20%;">Autor</th>
+          <th style="width:20%;">Año</th>
+          <th style="width:20%;">Palabras Clave</th>
+            <th style="width:20%;">Visualizar Comentarios</th>
         </tr>
-        <?php
+
+
+          <?php
           $result = $pdo->query("SELECT * FROM objetoaprendizaje oa JOIN profesor p ON oa.idProfesor = p.idProfesor");
           foreach ($result as $row) {
             $id = $row['idOA'];
@@ -206,7 +207,7 @@
             }
 
             echo '<tr>';
-          /*  $sql = "SELECT * FROM rutaoa WHERE idOA = :idOA AND idUser = :idUser AND username = :userName";
+            $sql = "SELECT * FROM rutaoa WHERE idOA = :idOA AND idUser = :idUser AND username = :userName";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(':idOA' => $id, 'idUser' => $_SESSION["userID"], 'userName' => $_SESSION["userName"]));
             $ruta = '';
@@ -221,7 +222,7 @@
             else
             {
               echo '<td>' . $row['nombre'] . '</td>';
-            }*/
+            }
             echo '<td>' . $row['autor'] . '</td>';
             echo '<td>' . date("d-m-Y",strtotime($row['fecha'])) . '</td>';
             echo '<td>' . $row['p_clave'] . '</td>';
@@ -243,8 +244,21 @@
             echo '<div onclick="showHide(' . "'myDiv" . $id . "'" . ')" class="arrow"></div>';
             echo '</div>';
             echo '</div>';
-
+            echo '<input type="text" style="display:none" id="ObjA' .$row['idOA'].'" value="' .$row['idOA'].'">';
             echo '<div id="myDiv' . $id . '">';
+              echo '<div class="row top5">';
+              echo '<div class="col-3 text-right padding5">';
+              echo '<b>Calificación:</b>';
+              echo '</div>';
+              echo '<div class="col text-justify padding15">';
+              echo '<input type="radio" id="rating-5" name="rating" value="5" /><label for="rating-5">5</label>';
+              echo '<input type="radio" id="rating-4" name="rating" value="4" /><label for="rating-4">4</label>';
+              echo '<input type="radio" id="rating-3" name="rating" value="3" /><label for="rating-3">3</label>';
+              echo '<input type="radio" id="rating-2" name="rating" value="2" /><label for="rating-2">2</label>';
+              echo '<input type="radio" id="rating-1" name="rating" value="1" /><label for="rating-1">1</label>';
+              echo '</div>';
+              echo '<input type="button" class="form-group" id="btnCalificar' .$row['idOA'].'" value="Calificiar">';
+              echo '</div>';
             echo '<div class="row top5">';
             echo '<div class="col-3 text-right padding5">';
             echo '<b>Descripcion:</b>';
@@ -356,19 +370,9 @@
               echo '<li class="list-group-item">';
               echo '<strong>' . $comment['nombresProf'] . ' ' . $comment['apellidosProf'].'  '.$comment['fechaComentario'].'</strong>&emsp;&emsp;&emsp;&emsp;';
               echo $comment['detalleComent'];
-			  $idComent=$comment['idComentario'];
               echo '<div><img src="'.$comment['pathImagen'].'" style="width: 50%; height: 80%">';
+              echo '<div>'.$comment['pathVideo'].'</div>';
               echo '</li>';
-			  echo '<form method="post">';
-              echo '<div class="form-group top5">';
-		      echo '<div class="form-row">';
-              echo '<div class="col-4 offset-8">';
-              echo '<input type="hidden" name="idEliminarComent" value="' . $id . '">';
-			  echo '<input class="btn btn-danger btn-block"  type="submit" value="Eliminar Comentario">';
-              echo '</div>';
-              echo '</div>';
-              echo '</div>';
-              echo '</form>';		
             }
             echo '</ul>';
             echo '</div>';
@@ -378,6 +382,7 @@
               echo '<div class="form-group">';
               echo '<textarea name="comment" placeholder="Ingrese un comentario." class="form-control"></textarea>';
               echo '<input id="imagen" name="imagen" type="file" maxlength="150">';
+              echo '<input class="form-control" placeholder="Ingrese link video" id="videoYoutube" name="videoYoutube" type="text">';
               echo '<br />';
               echo '<div id="preview"></div>';
               echo '</div>';
@@ -504,12 +509,47 @@
 </body>
 
 </html>
-
-<script type="text/javascript" src="/vendor/jquery/jquery.js"></script>
+<script src="vendor/jquery/jquery.js"></script>
+<script src="vendor/jquery/jquery.min.js"></script>
 <script>
-
-    $("#btn").click(function(){
-        var archivos = document.getElementById("file").files;
-        alert(archivos.name);
+var puntuacion;
+    $('[type*="radio"]').change(function () {
+        var me = $(this);
+        //alert(me.attr('value'));
+        puntuacion=me.attr('value');
     });
+$('[id*="btnCalificar"]').click(function () {
+    var me = $(this);
+    var strId=me.attr('id');
+    var numeroId=strId.substring(12);
+    var id=$("#idUsuario").val();
+    $.ajax({
+        method: "POST",
+        url: "puntuacion.php",
+        data: {"idObjetoAprendizaje": numeroId, "puntuacion": puntuacion, "idUsuario": id},
+    }).done(function( data ) {
+        var result = $.parseJSON(data);
+        $.each( result, function( key, value ) {
+            alert(value['mensaje']);
+        });
+    });
+});
+
+
+   /* $("#btnCalificar3").click(function(){
+        var id=$("#idUsuario").val()
+        var objeto=$("#ObjA3").val();
+        $.ajax({
+            method: "POST",
+            url: "puntuacion.php",
+            data: {"idObjetoAprendizaje": id, "puntuacion": puntuacion, "idUsuario": objeto},
+        }).done(function( data ) {
+            var result = $.parseJSON(data);
+            $.each( result, function( key, value ) {
+                alert(value['mensaje']);
+            });
+        });
+
+    });*/
+
 </script>
