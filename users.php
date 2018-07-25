@@ -2,6 +2,7 @@
     require_once "pdo.php";
     require_once "mail.php";
     require_once "delete.php";
+	require_once "enviar_correobloq.php";
     session_start();
 
     if ( isset($_POST["usuario"]) && isset($_POST["pw"]) && isset($_POST["idProfAdd"]) &&
@@ -42,6 +43,27 @@
         header( 'Location: users.php' ) ;
         return;
     }
+	if ( isset($_POST["idProfBloq"]) ) {
+		$sql = "UPDATE sistemaoa.profesor SET bloqueo = 0 where idProfesor = :idProfesor";
+		$stmt = $pdo->prepare($sql);
+        $stmt->execute(array(':idProfesor' => $_POST["idProfBloq"]));
+        $_SESSION["delProf"] = "Profesor bloqueado del Sistema.";
+        unset($_POST["idProfBloq"]);
+        header( 'Location: users.php' ) ;
+		enviarcorreobloc($_POST["nombresProf"],$_POST["correoProf"]);
+        return;
+	}
+
+	if ( isset($_POST["idProfDesbloq"]) ) {
+		$sql = "UPDATE sistemaoa.profesor SET bloqueo = 1 where idProfesor = :idProfesor";
+		$stmt = $pdo->prepare($sql);
+        $stmt->execute(array(':idProfesor' => $_POST["idProfDesbloq"]));
+        $_SESSION["delProf"] = "Profesor desbloqueado del Sistema.";
+        unset($_POST["idProfDesbloq"]);
+        header( 'Location: users.php' ) ;
+        return;
+	}	
+		
     if ( isset($_POST["idEstDel"]) ) {
         $sql = "DELETE FROM estudiante WHERE idEstudiante = :idEstudiante";
         $stmt = $pdo->prepare($sql);
@@ -51,6 +73,32 @@
         header( 'Location: users.php' ) ;
         return;
     }
+	
+	if ( isset($_POST["idEstBloq"]) ) {
+		$sql = "UPDATE sistemaoa.estudiante SET bloqueo = 0 where idEstudiante = :idEstudiante";
+		$stmt = $pdo->prepare($sql);
+        $stmt->execute(array(':idEstudiante' => $_POST["idEstBloq"]));
+        $_SESSION["delProf"] = "Estudiante bloqueado del Sistema.";
+        unset($_POST["idEstBloq"]);
+        header( 'Location: users.php' ) ;
+        return;
+	}
+	
+	if ( isset($_POST["idEstDesbloq"]) ) {
+		$sql = "UPDATE sistemaoa.estudiante SET bloqueo = 1 where idEstudiante = :idEstudiante";
+		$stmt = $pdo->prepare($sql);
+        $stmt->execute(array(':idEstudiante' => $_POST["idEstDesbloq"]));
+        $_SESSION["delProf"] = "Estudiante desbloqueado del Sistema.";
+		$correo= $row['correoEst'];
+		$nombre= $row['nombresEst'];
+		enviarcorreobloc($nombre,$correo);
+        unset($_POST["idEstDesbloq"]);
+		
+        header( 'Location: users.php' ) ;
+		
+        return;
+	}
+	
 ?>
 
 <!DOCTYPE html>
@@ -221,7 +269,7 @@
                         echo '<div class="col-3 text-right padding5">';
                         echo '<b>Correo Electronico:</b>';
                         echo '</div>';
-                        echo '<div class="col text-justify padding15">';
+                        echo '<div class="col  text-justify padding15">';
                         echo $row['correoProf'];
                         echo '</div>';
                         echo '</div>';
@@ -246,11 +294,36 @@
                         echo '<div class="form-row">';
                         echo '<div class="col-4 offset-8">';
                         echo '<input type="hidden" name="idProfDel" value="' . $id . '">';
+						
                         echo '<input class="btn btn-danger btn-block" type="submit" value="Borrar">';
+						echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</form>';
+						
+						echo '<form method="post">';
+                        echo '<div class="form-group top5">';
+                        echo '<div class="form-row">';
+                        echo '<div class="col-4 offset-8">';
+                        echo '<input type="hidden" name="idProfBloq" value="' . $id . '">';
+						echo '<input class="btn btn-danger btn-block"  type="submit" value="Bloquear">';
                         echo '</div>';
                         echo '</div>';
                         echo '</div>';
                         echo '</form>';
+						
+						echo '<form method="post">';
+                        echo '<div class="form-group top5">';
+                        echo '<div class="form-row">';
+                        echo '<div class="col-4 offset-8">';
+						
+                        echo '<input type="hidden" name="idProfDesbloq" value="' . $id . '">';
+						echo '<input class="btn btn-danger btn-block"  type="submit" value="Desbloquear">';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</form>';						
+						
                         echo '</div>';
                         echo '</div>';
                         echo '</div>';
@@ -327,10 +400,33 @@
                         echo '<div class="col-4 offset-8">';
                         echo '<input type="hidden" name="idEstDel" value="' . $id . '">';
                         echo '<input class="btn btn-danger btn-block" type="submit" value="Borrar">';
+						echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</form>';
+						 echo '<form method="post">';
+                        echo '<div class="form-group top5">';
+                        echo '<div class="form-row">';
+                        echo '<div class="col-4 offset-8">';
+                        echo '<input type="hidden" name="idEstBloq" value="' . $id . '">';
+						echo '<input class="btn btn-danger btn-block" type="submit" value="Bloquear">';
                         echo '</div>';
                         echo '</div>';
                         echo '</div>';
                         echo '</form>';
+						
+						echo '<form method="post">';
+                        echo '<div class="form-group top5">';
+                        echo '<div class="form-row">';
+                        echo '<div class="col-4 offset-8">';
+						
+                        echo '<input type="hidden" name="idEstDesbloq" value="' . $id . '">';
+						echo '<input class="btn btn-danger btn-block"  type="submit" value="Desbloquear">';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</form>';		
+						
                         echo '</div>';
                         echo '</div>';
                         echo '</div>';

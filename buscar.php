@@ -186,7 +186,30 @@
         <?php
         echo '<input type="text" style="display:none" id="idUsuario" value="'.$_SESSION['userID'].'">';
         ?>
+		
       <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Buscar OA..." title="Ingrese un OA">
+	  
+	   <div class="form-group">
+                                <label for="materias">Materias</label>
+                                <select id="cbxMaterias" class="form-control form-group">
+								<option>Fisica</option>
+								<option>Algebra Lineal</option>
+								<option>Calculo</option>
+								<option>Probabilidad</option>
+								<option>Matematica</option>
+								<option>Quimica</option>
+								<option>Ecuaciones Diferenciales</option>
+								<option>Programacion</option>
+								<option>Sismologia</option>
+								<option>Ecologia y Medio Ambiente</option>
+								<option>Metalurgia</option>
+								<option>Minerologia</option>
+								
+                                </select>
+								
+       </div>
+	   
+	   
       <table id="myTable">
         <tr class="header">
           <th style="width:20%;">Nombre</th>
@@ -414,7 +437,7 @@
             }
             echo '</div>';
             echo '<div class="col-3">';
-            echo '<a class="btn btn-primary btn-block" href="zip/' . $row['ruta_zip'] . '" download>Descargar</a>';
+            echo '<a class="btn btn-primary btn-block" id="Descargar'.$row['idOA'].'" href="'. $row['ruta_zip'] . '" download>Descargar</a>';
             echo '</div>';
             if ($userID) {
               echo '<div class="col-3">';
@@ -512,6 +535,18 @@
 <script src="vendor/jquery/jquery.js"></script>
 <script src="vendor/jquery/jquery.min.js"></script>
 <script>
+	$(document).ready(function(){
+                $.ajax({
+                    method: "GET",
+                    url: "mat.php",
+                }).done(function( data ) {
+                        var result = $.parseJSON(data);
+                        $.each( result, function( key, value ) {
+                            $("#cbxMaterias").append("<option>"+value['nombreMateria']+"</option>");
+							
+                        });
+                });
+            });
 var puntuacion;
     $('[type*="radio"]').change(function () {
         var me = $(this);
@@ -534,6 +569,26 @@ $('[id*="btnCalificar"]').click(function () {
         });
     });
 });
+$('[id*="Descargar"]').click(function () {
+        var me = $(this);
+        var strId = me.attr('id');
+        var numeroId = strId.substring(9);
+        $.ajax({
+            method: "POST",
+            url: "cargarObjetos.php",
+            data: {"idDescargas": numeroId},
+        }).done(function( data ) {
+            var result = $.parseJSON(data);
+            $.each( result, function( key, value ) {
+                alert(value['mensaje']);
+            });
+        });
+
+    });
+	
+
+
+           
 
 
    /* $("#btnCalificar3").click(function(){

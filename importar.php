@@ -1,4 +1,5 @@
 <?php
+require_once "enviar_correoAprendizaje.php";
     session_start();
 ?>
 
@@ -76,6 +77,9 @@
                             <div class="form-group" style="display: none">
                                 <input type="text" class="form-control" id="idMateria">
                             </div>
+							 <div class="form-group" style="display: none">
+                                <input type="text" class="form-control" id="idMail">
+                            </div>
                                 <div class="form-group">
                                     <label for="fechaCreacionOA">Fecha de creacion</label>
                                     <input type="date" class="form-control" id="fechaCreacionOA" placeholder="Fecha de creacion OA" required>
@@ -116,7 +120,9 @@
             }
 
             function uploadFile() {
-
+				//enviarcorreobloc();
+				
+				
                 if (document.getElementById('nombreOA').value == '' || document.getElementById('descripcion').value ==
                     '' || document.getElementById('autorOA').value == '' ||
                     document.getElementById('institucionOA').value == '' || document.getElementById(
@@ -207,7 +213,7 @@
         <script src="vendor/jquery/jquery.min.js"></script>
         <script>
             $("#cbxCarrera").change(function(){
-
+				$("#cbxMaterias").empty();
                 $.ajax({
                     method: "POST",
                     url: "materias.php",
@@ -233,6 +239,7 @@
                     });
                 });
             });
+			   
         </script>
 
     </div>
